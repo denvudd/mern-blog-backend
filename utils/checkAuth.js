@@ -7,7 +7,7 @@ export default (req, res, next) => {
     console.log("No token");
     return res.status(403).json({
       success: false,
-      message: "Something went wrong... Please, try again later.",
+      message: "You don't have access to this action.",
     });
   }
 

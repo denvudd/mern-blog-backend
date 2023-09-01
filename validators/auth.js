@@ -10,3 +10,10 @@ export const registerValidator = [
   }),
   body("avatarUrl", "Invalid link format").optional().isURL(),
 ];
+
+export const loginValidator = [
+  body("email", "Invalid email format").isEmail(),
+  body("password", "Password must be longer than 5 characters.").isLength({
+    min: 5,
+  }),
+];
