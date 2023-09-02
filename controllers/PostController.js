@@ -19,6 +19,19 @@ export const getAllPosts = async (req, res) => {
   }
 };
 
+export const getRecentTags = async (req, res) => {
+  try {
+    const posts = await Post.find().limit(5).exec();
+
+    const tags = posts
+      .map((post) => post.tags)
+      .flat()
+      .slice(0, 5);
+
+    res.json(tags);
+  } catch (error) {}
+};
+
 export const getPost = async (req, res) => {
   try {
     const postId = req.params.id;
@@ -40,7 +53,7 @@ export const getPost = async (req, res) => {
       {
         new: true,
       }
-    );
+    ).populate("user");
 
     if (!post) {
       return res.status(404).json({
@@ -68,7 +81,7 @@ export const createPost = async (req, res) => {
       title,
       text,
       imageUrl,
-      tags,
+      tags: tags.split(" "),
       user: req.userId,
     });
 
@@ -142,7 +155,7 @@ export const updatePost = async (req, res) => {
         text,
         imageUrl,
         user: req.userId,
-        tags,
+        tags: tags.split(" "),
       }
     );
 

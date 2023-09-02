@@ -1,14 +1,18 @@
-import { validationResult } from "express-validator";
 import User from "../models/User.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
 export const register = async (req, res) => {
   try {
-    const errors = validationResult(req);
+    const { email, fullName, avatarUrl } = req.body;
 
-    if (!errors.isEmpty()) {
-      return res.status(400).json(errors.array());
+    const existingUser = await User.exists({ email });
+
+    if (existingUser) {
+      return res.status(409).json({
+        success: false,
+        message: "Пользователь с таким email уже зарегистрирован.",
+      });
     }
 
     // encrypted password
@@ -17,9 +21,9 @@ export const register = async (req, res) => {
     const hash = await bcrypt.hash(password, salt);
 
     const doc = new User({
-      email: req.body.email,
-      fullName: req.body.fullName,
-      avatarUrl: req.body.avatarUrl,
+      email,
+      fullName,
+      avatarUrl,
       passwordHash: hash,
     });
 
@@ -44,12 +48,6 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
   try {
-    const errors = validationResult(req);
-
-    if (!errors.isEmpty()) {
-      return res.status(400).json(errors.array());
-    }
-    
     const user = await User.findOne({ email: req.body.email });
 
     if (!user) {
